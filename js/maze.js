@@ -3,33 +3,35 @@
 var maze = {
     MAZE_SIZE_X: 10,
     MAZE_SIZE_Y: 10,
-    mazeArray: [],
+    mazeCells: [],
+    mazePath: [],
     mazeCopy: [],
     globalCounter: [],
-    currentSpot: {},
     backtrace: 1,
 
     //Helper Functions
     createMaze: function () {
         for (var x = 0; x < this.MAZE_SIZE_X; x++) {
             for (var y = 0; y < this.MAZE_SIZE_Y; y++) {
-                this.mazeArray.push({'x': x, 'y': y, 'empty': true, 'removed': false});
+                this.mazeCells.push({'x': x, 'y': y, 'empty': true, 'removed': false});
             }
         }
     },
+
     //this chooses a random starting cell
     startMaze: function () {
         var randomX = Math.round(this.MAZE_SIZE_X * Math.random());
         var randomY = Math.round(this.MAZE_SIZE_Y * Math.random());
         return {'x': randomX, 'y': randomY};
     },
+
     //chooses a neighboring cell at random
     selectNeighbor: function () {
         var neighborX = Math.ceil(Math.random() * 3) - 2;
         var neighborY = 3;
         var dir;
-        if (neighborX == 0) {
 
+        if (neighborX == 0) {
             var notZero = Math.ceil(Math.random() * 3) - 2;
             while (notZero === 0) {
                 notZero = Math.ceil(Math.random() * 3) - 2;
@@ -53,6 +55,8 @@ var maze = {
         }
         return {'x': neighborX, 'y': neighborY, 'direction': dir};
     },
+
+    //this function will select a neighbor
     neighborFilter: function () {
         var value = this.selectNeighbor();
 
@@ -81,75 +85,72 @@ var maze = {
             }
         }
     },
-    cellOpen: function (x, y) {
-        for (var i = 0; i < this.mazeCopy.length; i++) {
-            if (this.mazeCopy[i].x == x && this.mazeCopy[i].y == y) {
-                return false
 
+    cellOpen: function (x, y) {
+        for (var i = 0; i < this.mazeCells.length; i++) {
+            if (this.mazeCells[i].x == x && this.mazeCells[i].y == y) {
+                this.mazeCells.splice(i, 1);
+                return true
             }
         }
-        return true;
+        return false;
     },
+
     initializeMaze: function () {
         this.createMaze();
         var initialLocation = this.startMaze();
-        this.mazeCopy.push({'x': initialLocation.x, 'y': initialLocation.y, 'empty': false});
+
+        this.mazePath.push({'x': initialLocation.x, 'y': initialLocation.y});
+        for (var i = 0; i < this.mazeCells.length; i++) {
+            if (this.mazeCells[i].x == initialLocation.x && this.mazeCells[i].y == initialLocation.y) {
+                this.mazeCells.splice(i, 1);
+            }
+        }
+        this.mazeCopy = this.mazePath.slice();
     },
+
     mazeGenerator: function () {
+        //select a neighboring cell
         var neighbor = this.neighborFilter();
-        this.currentSpot = {
-            'x': this.mazeCopy[this.mazeCopy.length - this.backtrace].x,
-            'y': this.mazeCopy[this.mazeCopy.length - this.backtrace].y
-        };
-        console.log(this.currentSpot);
-        if (this.currentSpot.x == 0 || this.currentSpot.y == 0 || this.currentSpot.x == this.MAZE_SIZE_X || this.currentSpot.y == this.MAZE_SIZE_Y) {
-            this.backtrace++;
-            console.log(this.backtrace);
+        var testingSpot = {};
+        var currentSpot;
 
-
-        }
-        if (neighbor != false) {
-            if (0 < neighbor.x + this.currentSpot.x || neighbor.x + this.currentSpot.x < this.MAZE_SIZE_X && 0 < neighbor.y + this.currentSpot.y || neighbor.y + this.currentSpot.y < this.MAZE_SIZE_X) {
-                if (this.cellOpen(neighbor.x + this.currentSpot.x, neighbor.y + this.currentSpot.y) == true) {
-                    this.mazeCopy.push({
-                        'x': neighbor.x + this.currentSpot.x,
-                        'y': neighbor.y + this.currentSpot.y,
-                        'direction': neighbor.direction,
-                        'empty': false
-                    });
-                    for (var i = 0; i < this.mazeArray.length; i++) {
-                        if (this.mazeArray[i].x == neighbor.x + this.currentSpot.x && this.mazeArray[i].y == neighbor.y + this.currentSpot.y) {
-                            this.mazeArray[i].empty = false;
-                        }
-                    }
-                    this.mazeGenerator();
-                }
-                else {
-
-                    this.mazeGenerator();
-                }
-            }
-            else {
-                this.backtrace++;
-                this.mazeGenerator();
-            }
-        }
-        else if (neighbor == false) {
-            for (var i = 0; i < this.mazeArray.length; i++) {
-                if (this.mazeArray[i].x == this.currentSpot.x && this.mazeArray[i].y == this.currentSpot.y) {
-                    this.mazeArray.splice(i, 1);
-                }
-            }
+        if (neighbor == false) {
+            this.mazeCopy.pop();
             this.mazeGenerator();
         }
-
-        if (this.mazeArray.length == 0) {
-            return this.mazeCopy;
+        if (this.mazeCopy[this.mazeCopy.length - 1] == undefined){
+            return this.mazePath;
         }
 
+        //finds current spot
+        currentSpot = {
+            'x': this.mazeCopy[this.mazeCopy.length - 1].x,
+            'y': this.mazeCopy[this.mazeCopy.length - 1].y
+        };
+
+        testingSpot.x = neighbor.x + currentSpot.x;
+        testingSpot.y = neighbor.y + currentSpot.y;
+
+        if (0 >= testingSpot.x || testingSpot.x >= this.MAZE_SIZE_X || 0 >= testingSpot.y || testingSpot.y >= this.MAZE_SIZE_Y) {
+            this.mazeGenerator();
+        }
+        if (this.cellOpen(testingSpot.x, testingSpot.y) == true) {
+            this.mazePath.push({
+                'x': testingSpot.x,
+                'y': testingSpot.y,
+                'direction': neighbor.direction
+            });
+            this.mazeCopy = this.mazePath.slice();
+            this.globalCounter = [];
+            this.mazeGenerator();
+        }
+        else {
+            this.mazeGenerator();
+        }
     }
 };
 
 maze.initializeMaze();
 maze.mazeGenerator();
-console.log(maze.mazeCopy);
+console.log(maze.mazeGenerator());
