@@ -151,6 +151,3 @@ var maze = {
     }
 };
 
-maze.initializeMaze();
-maze.mazeGenerator();
-console.log(maze.mazeGenerator());
