@@ -17,10 +17,10 @@ function createMaze() {
     scene.gravity = new BABYLON.Vector3(0, -0.8, 0);
     scene.collisionsEnabled = true;
 
-    freeCamera = new BABYLON.FreeCamera("free", new BABYLON.Vector3(0, 5, 0), scene);
+    freeCamera = new BABYLON.FreeCamera("free", new BABYLON.Vector3(0, 65, 0), scene);
     freeCamera.minZ = 1;
     freeCamera.checkCollisions = true;
-    freeCamera.applyGravity = true;
+    freeCamera.applyGravity = false;
     freeCamera.ellipsoid = new BABYLON.Vector3(1, 1, 1);
 
     // Ground
@@ -65,17 +65,30 @@ function createMaze() {
     cubeWallMaterial.bumpTexture = new BABYLON.Texture("assets/176_norm.jpg", scene);
     cubeWallMaterial.specularTexture = new BABYLON.Texture("assets/176.jpg", scene);
 
-    var mainCubeX = BABYLON.Mesh.CreateBox("mainCube", BLOCK_SIZE, scene);
+    var mainCubeX = BABYLON.Mesh.CreateBox("mainCubeX", BLOCK_SIZE, scene);
     mainCubeX.material = cubeWallMaterial;
     mainCubeX.checkCollisions = true;
     mainCubeX.scaling = new BABYLON.Vector3(6, 1, 1);
     mainCubeX.setEnabled(0);
 
-    var mainCubeY = BABYLON.Mesh.CreateBox("mainCube", BLOCK_SIZE, scene);
+    var mainCubeY = BABYLON.Mesh.CreateBox("mainCubeY", BLOCK_SIZE, scene);
     mainCubeY.material = cubeWallMaterial;
     mainCubeY.checkCollisions = true;
-    mainCubeY.scaling = new BABYLON.Vector3(1, 1, 5);
+    mainCubeY.scaling = new BABYLON.Vector3(1, 1, 6);
     mainCubeY.setEnabled(0);
+
+    var mainCubeWall = BABYLON.Mesh.CreateBox("mainCube", BLOCK_SIZE, scene);
+    mainCubeY.material = cubeWallMaterial;
+    mainCubeY.checkCollisions = true;
+    mainCubeY.scaling = new BABYLON.Vector3(6, 6, 6);
+    mainCubeY.setEnabled(0);
+
+
+    /*for (var i = 0, buffer = 10; i < buffer; i++){
+        var yWalls = mainCubeWall.createInstance('wallsY-' + i);
+        yWalls.position = new BABYLON.Vector3(-18, .5, 30  -6*i)
+
+    }*/
 
     createCubes(mainCubeX, mainCubeY, 10);
 
@@ -84,6 +97,9 @@ function createMaze() {
 
 function createCubes(cubeX, cubeY, maze_size) {
     var position = {'x': -1 * (6 * maze_size / 2), 'z': -1 * (6 * maze_size / 2)};
+
+
+
     for (var e = 0, buffer = maze_size; e < buffer; e++) {
         position.z = position.z + 6;
         for (var i = 0, buffer = maze_size; i < buffer; i++) {
@@ -92,8 +108,13 @@ function createCubes(cubeX, cubeY, maze_size) {
 
             //xInstances.checkCollisions = true;
             //yInstances.checkCollisions = true;
-            xInstances.position = new BABYLON.Vector3(position.x + (i * 6) - 3, .5, position.z);
-            yInstances.position = new BABYLON.Vector3(position.x + (i * 6), .5, position.z - 3);
+
+            if (e != maze_size - 1) {
+                xInstances.position = new BABYLON.Vector3(position.x + (i * 6) - 3, .5, position.z);
+            }
+            if (i != maze_size - 1) {
+                yInstances.position = new BABYLON.Vector3(position.x + (i * 6), .5, position.z - 3);
+            }
         }
     }
 }
@@ -104,33 +125,32 @@ function removeCubes() {
     console.log(startPosition);
 
     if (startPosition != undefined) {
-        console.log('play');
+
         if (startPosition.direction == 'N') {
             for (var i = 0; i < maze_scene.meshes.length; i++) {
-                if (maze_scene.meshes[i].id == 'yCube x:' + startPosition.x + ' y:' + startPosition.y + 1) {
-                    console.log('true');
-                    maze_scene.meshes[i].enabled = false;
+                if (maze_scene.meshes[i].id == 'yCube x:' + startPosition.x + ' y:' + startPosition.y) {
+                    maze_scene.meshes[i].dispose();
 
                 }
             }
         }
         if (startPosition.direction == 'S') {
             for (var i = 0; i < maze_scene.meshes.length; i++) {
-                if (maze_scene.meshes[i].id == 'yCube x:' + startPosition.x + ' y:' + startPosition.y - 1) {
+                if (maze_scene.meshes[i].id == 'yCube x:' + startPosition.x + ' y:' + startPosition.y) {
                     maze_scene.meshes[i].dispose();
                 }
             }
         }
         if (startPosition.direction == 'W') {
             for (var i = 0; i < maze_scene.meshes.length; i++) {
-                if (maze_scene.meshes[i].id == 'xCube x:' + startPosition.x + ' y:' + startPosition.y - 1) {
+                if (maze_scene.meshes[i].id == 'xCube x:' + startPosition.x + ' y:' + startPosition.y) {
                     maze_scene.meshes[i].dispose();
                 }
             }
         }
         if (startPosition.direction == 'E') {
             for (var i = 0; i < maze_scene.meshes.length; i++) {
-                if (maze_scene.meshes[i].id == 'xCube x:' + startPosition.x + ' y:' + startPosition.y + 1) {
+                if (maze_scene.meshes[i].id == 'xCube x:' + startPosition.x + ' y:' + startPosition.y) {
                     maze_scene.meshes[i].dispose();
                 }
             }
