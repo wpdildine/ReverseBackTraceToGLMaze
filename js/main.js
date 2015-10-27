@@ -78,27 +78,28 @@ function createMaze() {
     mainCubeY.setEnabled(0);
 
     var mainCubeWall = BABYLON.Mesh.CreateBox("mainCube", BLOCK_SIZE, scene);
-    mainCubeY.material = cubeWallMaterial;
-    mainCubeY.checkCollisions = true;
-    mainCubeY.scaling = new BABYLON.Vector3(6, 6, 6);
-    mainCubeY.setEnabled(0);
+    mainCubeWall.material = cubeWallMaterial;
+    mainCubeWall.checkCollisions = true;
+    mainCubeWall.scaling = new BABYLON.Vector3(1, 6, 6);
+    mainCubeWall.setEnabled(0);
 
 
-    /*for (var i = 0, buffer = 10; i < buffer; i++){
-        var yWalls = mainCubeWall.createInstance('wallsY-' + i);
-        yWalls.position = new BABYLON.Vector3(-18, .5, 30  -6*i)
 
-    }*/
 
-    createCubes(mainCubeX, mainCubeY, 10);
+    createCubes(mainCubeX, mainCubeY, mainCubeWall, 10);
 
     return scene;
 }
 
-function createCubes(cubeX, cubeY, maze_size) {
+function createCubes(cubeX, cubeY, mainCubeWall, maze_size) {
     var position = {'x': -1 * (6 * maze_size / 2), 'z': -1 * (6 * maze_size / 2)};
 
-
+    for (var i = 0, buffer = 10; i < buffer; i++){
+        var yWalls = mainCubeWall.createInstance('wallsY-' + i);
+        var yposWalls = mainCubeWall.createInstance('wallsY-' + i);
+        yWalls.position = new BABYLON.Vector3(position.x-6, 3, 30  -6*i)
+        yposWalls.position = new BABYLON.Vector3((-1*position.x), 3, 30  -6*i)
+    }
 
     for (var e = 0, buffer = maze_size; e < buffer; e++) {
         position.z = position.z + 6;
