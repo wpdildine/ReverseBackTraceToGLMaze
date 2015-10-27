@@ -90,23 +90,21 @@ function createCubes(cubeX, cubeY, maze_size) {
             var xInstances = cubeX.createInstance('xCube x:' + i + ' y:' + e);
             var yInstances = cubeY.createInstance('yCube x:' + i + ' y:' + e);
 
-            xInstances.checkCollisions = true;
-            yInstances.checkCollisions = true;
-            xInstances.position = new BABYLON.Vector3(position.x + (i * 6) - 3, 1.5, position.z);
-            yInstances.position = new BABYLON.Vector3(position.x + (i * 6), 1.5, position.z - 3);
+            //xInstances.checkCollisions = true;
+            //yInstances.checkCollisions = true;
+            xInstances.position = new BABYLON.Vector3(position.x + (i * 6) - 3, .5, position.z);
+            yInstances.position = new BABYLON.Vector3(position.x + (i * 6), .5, position.z - 3);
         }
     }
 }
 
-for (var i = 0; i < maze_scene.meshes.length; i++) {
-    if (maze_scene.meshes[i].id == 'yCube x:2 y:3') {
-        maze.meshes[i].dispose();
-    }
-}
-function removeCubes() {
 
+function removeCubes() {
     var startPosition = maze.mazePath.shift();
+    console.log(startPosition);
+
     if (startPosition != undefined) {
+        console.log('play');
         if (startPosition.direction == 'N') {
             for (var i = 0; i < maze_scene.meshes.length; i++) {
                 if (maze_scene.meshes[i].id == 'yCube x:' + startPosition.x + ' y:' + startPosition.y + 1) {
@@ -139,7 +137,6 @@ function removeCubes() {
         }
         removeCubes();
     }
-
 }
 
 window.onload = function () {
@@ -157,13 +154,14 @@ window.onload = function () {
         maze.initializeMaze();
         maze.mazeGenerator();
         maze_scene = createMaze();
-        //removeCubes();
-        // Enable keyboard/mouse controls on the scene (FPS like mode)
-        maze_scene.activeCamera.attachControl(canvas);
-
-        engine.runRenderLoop(function () {
-            maze_scene.render();
-        });
+        removeCubes();
     }
-};
 
+    // Enable keyboard/mouse controls on the scene (FPS like mode)
+    maze_scene.activeCamera.attachControl(canvas);
+
+    engine.runRenderLoop(function () {
+        maze_scene.render();
+    });
+
+};
